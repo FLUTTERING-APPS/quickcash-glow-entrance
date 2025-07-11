@@ -52,6 +52,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// QuickCash theme colors
+				'login-bg': 'hsl(var(--login-background))',
+				'login-surface': 'hsl(var(--login-surface))',
+				'electric-blue': 'hsl(var(--electric-blue))',
+				'electric-blue-glow': 'hsl(var(--electric-blue-glow))',
+				'pure-white': 'hsl(var(--pure-white))',
+				'glass-border': 'hsl(var(--glass-border))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

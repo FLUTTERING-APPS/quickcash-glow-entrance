@@ -38,6 +38,18 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
+    /* QuickCash Premium Theme */
+    --login-background: 0 0% 8%;
+    --login-surface: 0 0% 12%;
+    --electric-blue: 210 100% 56%;
+    --electric-blue-glow: 210 100% 76%;
+    --pure-white: 0 0% 100%;
+    --glass-border: 0 0% 20%;
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -83,6 +95,10 @@ All colors MUST be HSL.
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
+    /* Dark mode adjustments for QuickCash theme */
+    --login-background: 0 0% 6%;
+    --login-surface: 0 0% 10%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -102,4 +118,106 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* QuickCash Premium Animations & Effects */
+@keyframes streak {
+  0% { transform: translateX(-100%) translateY(-100%); opacity: 0; }
+  50% { opacity: 0.3; }
+  100% { transform: translateX(100vw) translateY(100vh); opacity: 0; }
+}
+
+@keyframes slide-down {
+  0% { 
+    transform: translateY(-30px); 
+    opacity: 0; 
+  }
+  100% { 
+    transform: translateY(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes ripple {
+  0% { 
+    transform: scale(0.8); 
+    opacity: 1; 
+  }
+  100% { 
+    transform: scale(2.4); 
+    opacity: 0; 
+  }
+}
+
+@keyframes text-glow {
+  0%, 100% { text-shadow: 0 0 20px hsl(var(--pure-white) / 0.3); }
+  50% { text-shadow: 0 0 30px hsl(var(--pure-white) / 0.6), 0 0 40px hsl(var(--electric-blue) / 0.3); }
+}
+
+.login-container {
+  background: linear-gradient(135deg, hsl(var(--login-background)), hsl(var(--login-surface)));
+  position: relative;
+  overflow: hidden;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, hsl(var(--electric-blue) / 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, hsl(var(--electric-blue) / 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.light-streak {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: linear-gradient(45deg, transparent, hsl(var(--electric-blue) / 0.6), transparent);
+  animation: streak 8s linear infinite;
+}
+
+.light-streak:nth-child(1) { animation-delay: 0s; top: 10%; left: 0%; }
+.light-streak:nth-child(2) { animation-delay: 2s; top: 60%; left: 0%; }
+.light-streak:nth-child(3) { animation-delay: 4s; top: 30%; left: 0%; }
+.light-streak:nth-child(4) { animation-delay: 6s; top: 80%; left: 0%; }
+
+.logo-glow {
+  animation: text-glow 3s ease-in-out infinite;
+}
+
+.slide-down {
+  animation: slide-down 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.slide-down-delayed {
+  animation: slide-down 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+  opacity: 0;
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: hsl(var(--electric-blue) / 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-effect:hover::before {
+  width: 300px;
+  height: 300px;
 }
