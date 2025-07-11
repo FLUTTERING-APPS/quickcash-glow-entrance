@@ -221,3 +221,56 @@ All colors MUST be HSL.
   width: 300px;
   height: 300px;
 }
+
+/* Electric Slider Styles */
+.slider-electric [data-radix-slider-track] {
+  background: hsl(var(--glass-border));
+  height: 8px;
+  border-radius: 4px;
+}
+
+.slider-electric [data-radix-slider-range] {
+  background: linear-gradient(90deg, hsl(var(--electric-blue)), hsl(var(--electric-blue-glow)));
+  height: 8px;
+  border-radius: 4px;
+  box-shadow: 0 0 20px hsl(var(--electric-blue) / 0.5);
+}
+
+.slider-electric [data-radix-slider-thumb] {
+  width: 24px;
+  height: 24px;
+  background: hsl(var(--pure-white));
+  border: 3px solid hsl(var(--electric-blue));
+  border-radius: 50%;
+  box-shadow: 0 0 20px hsl(var(--electric-blue) / 0.7);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slider-electric [data-radix-slider-thumb]:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 30px hsl(var(--electric-blue) / 0.9);
+}
+
+/* Pulse Hover Effect */
+.pulse-hover:hover {
+  animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Glow Text Effect */
+.glow-text {
+  animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+  from {
+    text-shadow: 0 0 20px hsl(var(--electric-blue) / 0.5);
+  }
+  to {
+    text-shadow: 0 0 30px hsl(var(--electric-blue) / 0.8), 0 0 40px hsl(var(--electric-blue) / 0.4);
+  }
+}

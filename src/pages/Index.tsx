@@ -1,75 +1,247 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+
+const CITIES = [
+  "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Ahmedabad",
+  "Surat", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal"
+];
 
 const Index = () => {
-  const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth
-    console.log("Google login clicked");
+  const [currentCard, setCurrentCard] = useState(0);
+  const [loanAmount, setLoanAmount] = useState([500000]);
+  const [employmentType, setEmploymentType] = useState("");
+  const [monthlyIncome, setMonthlyIncome] = useState("");
+  const [ageGroup, setAgeGroup] = useState("");
+  const [city, setCity] = useState("");
+  const [filteredCities, setFilteredCities] = useState(CITIES);
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+
+  const totalCards = 5;
+
+  const formatAmount = (amount: number) => {
+    if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1)} Cr`;
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)} L`;
+    if (amount >= 1000) return `₹${(amount / 1000).toFixed(0)}K`;
+    return `₹${amount}`;
   };
 
-  return (
-    <div className="min-h-screen login-container flex flex-col items-center justify-center relative">
-      {/* Animated Light Streaks */}
-      <div className="light-streak"></div>
-      <div className="light-streak"></div>
-      <div className="light-streak"></div>
-      <div className="light-streak"></div>
-      
-      {/* Main Content */}
-      <div className="flex flex-col items-center justify-center space-y-12 z-10 px-8">
-        {/* App Logo */}
-        <div className="text-center slide-down">
-          <h1 className="text-6xl md:text-7xl font-black text-pure-white logo-glow tracking-tight">
-            QuickCash
-          </h1>
-          <div className="w-24 h-1 bg-gradient-to-r from-transparent via-electric-blue to-transparent mx-auto mt-4 rounded-full"></div>
-        </div>
+  const handleSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && currentCard < totalCards - 1) {
+      setCurrentCard(currentCard + 1);
+    } else if (direction === 'right' && currentCard > 0) {
+      setCurrentCard(currentCard - 1);
+    }
+  };
 
-        {/* Google Login Button */}
-        <div className="slide-down-delayed">
+  const handleCitySearch = (value: string) => {
+    setCity(value);
+    const filtered = CITIES.filter(c => 
+      c.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredCities(filtered);
+    setShowCityDropdown(value.length > 0);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') handleSwipe('right');
+      if (e.key === 'ArrowRight') handleSwipe('left');
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentCard]);
+
+  const cards = [
+    // Card 1: Loan Amount
+    <div key="loan-amount" className="flex flex-col items-center justify-center space-y-8 text-center">
+      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-4">
+        How much loan do you need?
+      </h2>
+      <div className="w-full max-w-lg space-y-8">
+        <div className="text-6xl md:text-7xl font-black text-electric-blue glow-text">
+          {formatAmount(loanAmount[0])}
+        </div>
+        <div className="px-6">
+          <Slider
+            value={loanAmount}
+            onValueChange={setLoanAmount}
+            max={10000000}
+            min={1000}
+            step={1000}
+            className="w-full slider-electric"
+          />
+        </div>
+        <div className="flex justify-between text-sm text-pure-white/60">
+          <span>₹1K</span>
+          <span>₹1 Cr</span>
+        </div>
+      </div>
+    </div>,
+
+    // Card 2: Employment Type
+    <div key="employment" className="flex flex-col items-center justify-center space-y-8 text-center">
+      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-8">
+        What's your employment type?
+      </h2>
+      <div className="grid gap-6 w-full max-w-md">
+        {["Salaried", "Self-employed", "Student"].map((type) => (
           <Button
-            onClick={handleGoogleLogin}
-            className="ripple-effect bg-pure-white text-gray-900 hover:bg-gray-100 border-2 border-transparent hover:border-electric-blue/20 px-8 py-6 text-lg font-semibold rounded-2xl shadow-2xl transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-electric-blue/20 min-w-[280px] group"
+            key={type}
+            onClick={() => setEmploymentType(type)}
+            className={`py-6 text-xl font-semibold rounded-2xl transition-all duration-300 ${
+              employmentType === type
+                ? "bg-electric-blue text-pure-white shadow-2xl shadow-electric-blue/40 scale-105"
+                : "bg-pure-white text-gray-900 hover:bg-gray-100 hover:scale-105"
+            }`}
           >
-            <svg 
-              className="w-6 h-6 mr-3 transition-transform duration-300 group-hover:scale-110" 
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            Continue with Google
+            {type}
           </Button>
-        </div>
+        ))}
+      </div>
+    </div>,
 
-        {/* Subtle Footer Text */}
-        <div className="text-center space-y-2 opacity-60 slide-down-delayed">
-          <p className="text-sm text-pure-white/70">
-            Fast, secure, and trusted by millions
-          </p>
-          <div className="flex items-center justify-center space-x-4 text-xs text-pure-white/50">
-            <span>🔒 Bank-level security</span>
-            <span>⚡ Instant approval</span>
-            <span>📱 Mobile-first</span>
+    // Card 3: Monthly Income
+    <div key="income" className="flex flex-col items-center justify-center space-y-8 text-center">
+      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-8">
+        Your monthly income
+      </h2>
+      <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
+        {["₹20K - ₹40K", "₹40K - ₹60K", "₹60K - ₹80K", "₹80K - ₹1L", "₹1L - ₹2L", "₹2L+"].map((income) => (
+          <Button
+            key={income}
+            onClick={() => setMonthlyIncome(income)}
+            className={`py-4 text-lg font-medium rounded-xl transition-all duration-300 ${
+              monthlyIncome === income
+                ? "bg-electric-blue text-pure-white shadow-lg shadow-electric-blue/30"
+                : "bg-pure-white text-gray-900 hover:bg-gray-100 hover:scale-105"
+            }`}
+          >
+            {income}
+          </Button>
+        ))}
+      </div>
+    </div>,
+
+    // Card 4: Age Group
+    <div key="age" className="flex flex-col items-center justify-center space-y-8 text-center">
+      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-8">
+        What's your age group?
+      </h2>
+      <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
+        {["18-21", "22-25", "26-30", "31-35", "36-45", "46-60", "60+"].map((age) => (
+          <Button
+            key={age}
+            onClick={() => setAgeGroup(age)}
+            className={`py-4 text-lg font-medium rounded-xl transition-all duration-300 pulse-hover ${
+              ageGroup === age
+                ? "bg-electric-blue text-pure-white shadow-lg shadow-electric-blue/30"
+                : "bg-pure-white text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            {age === "18-21" ? "18-21 (Student)" : age}
+          </Button>
+        ))}
+      </div>
+    </div>,
+
+    // Card 5: City Search
+    <div key="city" className="flex flex-col items-center justify-center space-y-8 text-center">
+      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-8">
+        Enter your city
+      </h2>
+      <div className="relative w-full max-w-md">
+        <div className="relative bg-pure-white rounded-2xl p-6 shadow-2xl">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Input
+              value={city}
+              onChange={(e) => handleCitySearch(e.target.value)}
+              placeholder="Type your city name..."
+              className="pl-10 py-3 text-lg border-0 bg-transparent focus:ring-0 focus:outline-none"
+              onFocus={() => setShowCityDropdown(true)}
+            />
           </div>
+          
+          {showCityDropdown && filteredCities.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-pure-white rounded-xl shadow-2xl max-h-48 overflow-y-auto z-50">
+              {filteredCities.slice(0, 6).map((cityName) => (
+                <button
+                  key={cityName}
+                  onClick={() => {
+                    setCity(cityName);
+                    setShowCityDropdown(false);
+                  }}
+                  className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors duration-200 text-gray-900"
+                >
+                  {cityName}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  ];
+
+  return (
+    <div className="min-h-screen login-container relative overflow-hidden">
+      {/* Progress Indicator */}
+      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="flex space-x-3">
+          {Array.from({ length: totalCards }).map((_, index) => (
+            <div
+              key={index}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentCard
+                  ? "bg-electric-blue shadow-lg shadow-electric-blue/50"
+                  : "bg-pure-white/30"
+              }`}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Glossy Effect Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-pure-white/[0.02] to-transparent pointer-events-none"></div>
+      {/* Navigation Arrows */}
+      {currentCard > 0 && (
+        <button
+          onClick={() => handleSwipe('right')}
+          className="absolute left-6 top-1/2 transform -translate-y-1/2 z-20 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+      )}
+      
+      {currentCard < totalCards - 1 && (
+        <button
+          onClick={() => handleSwipe('left')}
+          className="absolute right-6 top-1/2 transform -translate-y-1/2 z-20 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+      )}
+
+      {/* Cards Container */}
+      <div className="flex transition-transform duration-500 ease-out h-screen"
+           style={{ transform: `translateX(-${currentCard * 100}%)` }}>
+        {cards.map((card, index) => (
+          <div
+            key={index}
+            className="min-w-full flex items-center justify-center px-8 py-12"
+          >
+            <div className="w-full max-w-2xl mx-auto">
+              {card}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Swipe Instructions */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-pure-white/60 text-sm">
+        <p>← Swipe or use arrow keys to navigate →</p>
+      </div>
     </div>
   );
 };
