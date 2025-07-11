@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -18,6 +18,7 @@ const Index = () => {
   const [city, setCity] = useState("");
   const [filteredCities, setFilteredCities] = useState(CITIES);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const sliderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const totalCards = 5;
 
@@ -36,6 +37,14 @@ const Index = () => {
     }
   };
 
+  const autoAdvance = () => {
+    if (currentCard < totalCards - 1) {
+      setTimeout(() => {
+        setCurrentCard(currentCard + 1);
+      }, 500);
+    }
+  };
+
   const handleCitySearch = (value: string) => {
     setCity(value);
     const filtered = CITIES.filter(c => 
@@ -43,6 +52,20 @@ const Index = () => {
     );
     setFilteredCities(filtered);
     setShowCityDropdown(value.length > 0);
+    
+    // Auto-advance if exact city match or user types enough
+    if (filtered.length === 1 && value.length > 2) {
+      setTimeout(() => {
+        setShowCityDropdown(false);
+        autoAdvance();
+      }, 800);
+    }
+  };
+
+  const handleCitySelect = (cityName: string) => {
+    setCity(cityName);
+    setShowCityDropdown(false);
+    autoAdvance();
   };
 
   useEffect(() => {
@@ -67,7 +90,11 @@ const Index = () => {
         <div className="px-6">
           <Slider
             value={loanAmount}
-            onValueChange={setLoanAmount}
+            onValueChange={(value) => {
+              setLoanAmount(value);
+              if (sliderTimeoutRef.current) clearTimeout(sliderTimeoutRef.current);
+              sliderTimeoutRef.current = setTimeout(autoAdvance, 1000);
+            }}
             max={10000000}
             min={1000}
             step={1000}
@@ -78,6 +105,9 @@ const Index = () => {
           <span>₹1K</span>
           <span>₹1 Cr</span>
         </div>
+        <p className="text-pure-white/80 text-sm mt-4">
+          Low interest rates. No credit score required.
+        </p>
       </div>
     </div>,
 
@@ -90,7 +120,10 @@ const Index = () => {
         {["Salaried", "Self-employed", "Student"].map((type) => (
           <Button
             key={type}
-            onClick={() => setEmploymentType(type)}
+            onClick={() => {
+              setEmploymentType(type);
+              autoAdvance();
+            }}
             className={`py-6 text-xl font-semibold rounded-2xl transition-all duration-300 ${
               employmentType === type
                 ? "bg-electric-blue text-pure-white shadow-2xl shadow-electric-blue/40 scale-105"
@@ -109,13 +142,16 @@ const Index = () => {
         Your monthly income
       </h2>
       <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
-        {["₹20K - ₹40K", "₹40K - ₹60K", "₹60K - ₹80K", "₹80K - ₹1L", "₹1L - ₹2L", "₹2L+"].map((income) => (
+        {["₹5K - ₹20K", "₹20K - ₹40K", "₹40K - ₹60K", "₹60K - ₹80K", "₹80K - ₹1L", "₹1L+"].map((income) => (
           <Button
             key={income}
-            onClick={() => setMonthlyIncome(income)}
+            onClick={() => {
+              setMonthlyIncome(income);
+              autoAdvance();
+            }}
             className={`py-4 text-lg font-medium rounded-xl transition-all duration-300 ${
               monthlyIncome === income
-                ? "bg-electric-blue text-pure-white shadow-lg shadow-electric-blue/30"
+                ? "bg-electric-blue text-pure-white shadow-lg shadow-electric-blue/30 scale-105"
                 : "bg-pure-white text-gray-900 hover:bg-gray-100 hover:scale-105"
             }`}
           >
@@ -134,14 +170,17 @@ const Index = () => {
         {["18-21", "22-25", "26-30", "31-35", "36-45", "46-60", "60+"].map((age) => (
           <Button
             key={age}
-            onClick={() => setAgeGroup(age)}
+            onClick={() => {
+              setAgeGroup(age);
+              autoAdvance();
+            }}
             className={`py-4 text-lg font-medium rounded-xl transition-all duration-300 pulse-hover ${
               ageGroup === age
-                ? "bg-electric-blue text-pure-white shadow-lg shadow-electric-blue/30"
+                ? "bg-electric-blue text-pure-white shadow-lg shadow-electric-blue/30 scale-105"
                 : "bg-pure-white text-gray-900 hover:bg-gray-100"
             }`}
           >
-            {age === "18-21" ? "18-21 (Student)" : age}
+            {age === "18-21" ? "18-21 (Student Loans)" : age}
           </Button>
         ))}
       </div>
@@ -170,10 +209,7 @@ const Index = () => {
               {filteredCities.slice(0, 6).map((cityName) => (
                 <button
                   key={cityName}
-                  onClick={() => {
-                    setCity(cityName);
-                    setShowCityDropdown(false);
-                  }}
+                  onClick={() => handleCitySelect(cityName)}
                   className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors duration-200 text-gray-900"
                 >
                   {cityName}
