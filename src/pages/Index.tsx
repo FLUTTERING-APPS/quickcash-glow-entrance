@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -6,10 +7,11 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 const CITIES = [
   "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Ahmedabad",
-  "Surat", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal"
+  "Surat", "Jaipur", "Lucknow", "Kanpur", "Nagpur", "Indore", "Thane", "Bhopal", "Others"
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   const [currentCard, setCurrentCard] = useState(0);
   const [loanAmount, setLoanAmount] = useState([500000]);
   const [employmentType, setEmploymentType] = useState("");
@@ -42,6 +44,11 @@ const Index = () => {
       setTimeout(() => {
         setCurrentCard(currentCard + 1);
       }, 500);
+    } else {
+      // Navigate to KYC page after completing all cards
+      setTimeout(() => {
+        navigate('/kyc');
+      }, 800);
     }
   };
 
@@ -64,6 +71,12 @@ const Index = () => {
 
   const handleCitySelect = (cityName: string) => {
     setCity(cityName);
+    setShowCityDropdown(false);
+    autoAdvance();
+  };
+
+  const handleOthersCity = () => {
+    setCity("Others");
     setShowCityDropdown(false);
     autoAdvance();
   };
@@ -209,7 +222,7 @@ const Index = () => {
               {filteredCities.slice(0, 6).map((cityName) => (
                 <button
                   key={cityName}
-                  onClick={() => handleCitySelect(cityName)}
+                  onClick={() => cityName === "Others" ? handleOthersCity() : handleCitySelect(cityName)}
                   className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors duration-200 text-gray-900"
                 >
                   {cityName}
@@ -218,6 +231,16 @@ const Index = () => {
             </div>
           )}
         </div>
+        
+        {/* Others button for manual input */}
+        {!showCityDropdown && !city && (
+          <Button
+            onClick={handleOthersCity}
+            className="mt-4 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white border border-pure-white/30 rounded-xl py-3 px-6 transition-all duration-300"
+          >
+            Others (Enter manually)
+          </Button>
+        )}
       </div>
     </div>
   ];
