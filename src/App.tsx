@@ -12,18 +12,24 @@ import EligibleApps from "./pages/EligibleApps";
 import PlatformFee from "./pages/PlatformFee";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import NotFound from "./pages/NotFound";
+import LoanStatus from "./components/LoanStatus";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasExistingApplication, setHasExistingApplication] = useState(false);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setLoading(false);
+      if (session) {
+        checkExistingApplication(session.user.id);
+      } else {
+        setLoading(false);
+      }
     });
 
     // Listen for auth changes
@@ -31,10 +37,29 @@ const App = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) {
+        checkExistingApplication(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const checkExistingApplication = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from('loan_applications')
+        .select('id')
+        .eq('user_id', userId)
+        .limit(1);
+      
+      setHasExistingApplication(data && data.length > 0);
+    } catch (error) {
+      console.error('Error checking existing application:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -55,7 +80,9 @@ const App = () => {
               <Route path="*" element={<Login />} />
             ) : (
               <>
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={hasExistingApplication ? <LoanStatus /> : <Index />} />
+                <Route path="/new-application" element={<Index />} />
+                <Route path="/loan-status" element={<LoanStatus />} />
                 <Route path="/kyc" element={<KYC />} />
                 <Route path="/eligible-apps" element={<EligibleApps />} />
                 <Route path="/platform-fee" element={<PlatformFee />} />

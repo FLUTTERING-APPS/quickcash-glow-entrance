@@ -14,7 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      kyc_status: {
+        Row: {
+          created_at: string | null
+          id: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      loan_applications: {
+        Row: {
+          age_group: string
+          city: string
+          created_at: string | null
+          employment_type: string
+          id: string
+          loan_amount: number
+          monthly_income: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          age_group: string
+          city: string
+          created_at?: string | null
+          employment_type: string
+          id?: string
+          loan_amount: number
+          monthly_income: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          age_group?: string
+          city?: string
+          created_at?: string | null
+          employment_type?: string
+          id?: string
+          loan_amount?: number
+          monthly_income?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

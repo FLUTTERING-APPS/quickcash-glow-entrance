@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const CITIES = [
   "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Ahmedabad",
@@ -12,6 +14,7 @@ const CITIES = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [currentCard, setCurrentCard] = useState(0);
   const [loanAmount, setLoanAmount] = useState([500000]);
   const [employmentType, setEmploymentType] = useState("");
@@ -20,7 +23,9 @@ const Index = () => {
   const [city, setCity] = useState("");
   const [filteredCities, setFilteredCities] = useState(CITIES);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [isOthersSelected, setIsOthersSelected] = useState(false);
   const sliderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const totalCards = 5;
 
@@ -40,15 +45,70 @@ const Index = () => {
   };
 
   const autoAdvance = () => {
-    if (currentCard < totalCards - 1) {
-      setTimeout(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
+      if (currentCard < totalCards - 1) {
         setCurrentCard(currentCard + 1);
-      }, 500);
-    } else {
-      // Navigate to KYC page after completing all cards
-      setTimeout(() => {
-        navigate('/kyc');
-      }, 800);
+      } else {
+        // Submit loan application data
+        submitLoanApplication();
+      }
+    }, 1500);
+  };
+
+  const submitLoanApplication = async () => {
+    try {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) {
+        navigate('/login');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('loan_applications')
+        .insert({
+          user_id: user.id,
+          loan_amount: loanAmount[0],
+          employment_type: employmentType,
+          monthly_income: monthlyIncome,
+          age_group: ageGroup,
+          city: city
+        });
+
+      if (error) {
+        console.error('Error submitting application:', error);
+        toast({
+          title: "Error",
+          description: "Failed to submit application. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Create KYC status entry
+      await supabase
+        .from('kyc_status')
+        .upsert({
+          user_id: user.id,
+          status: 'pending'
+        });
+
+      toast({
+        title: "Application Submitted!",
+        description: "Your loan application has been submitted successfully.",
+      });
+
+      navigate('/kyc');
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -76,9 +136,22 @@ const Index = () => {
   };
 
   const handleOthersCity = () => {
-    setCity("Others");
+    setCity("");
+    setIsOthersSelected(true);
     setShowCityDropdown(false);
-    autoAdvance();
+    // Clear any auto-advance timeouts
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    if (sliderTimeoutRef.current) {
+      clearTimeout(sliderTimeoutRef.current);
+    }
+  };
+
+  const handleManualCitySubmit = () => {
+    if (city.trim()) {
+      autoAdvance();
+    }
   };
 
   useEffect(() => {
@@ -232,8 +305,40 @@ const Index = () => {
           )}
         </div>
         
+        {/* Others manual input section */}
+        {isOthersSelected && (
+          <div className="mt-4 p-4 bg-pure-white/10 rounded-xl">
+            <Input
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="Enter your city name..."
+              className="mb-3 bg-pure-white text-black"
+              onKeyPress={(e) => e.key === 'Enter' && handleManualCitySubmit()}
+            />
+            <div className="flex gap-2">
+              <Button
+                onClick={handleManualCitySubmit}
+                disabled={!city.trim()}
+                className="flex-1 bg-electric-blue hover:bg-electric-blue/90 text-pure-white"
+              >
+                Continue
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsOthersSelected(false);
+                  setCity("");
+                }}
+                variant="outline"
+                className="bg-pure-white/20 text-pure-white border-pure-white/30"
+              >
+                Back
+              </Button>
+            </div>
+          </div>
+        )}
+        
         {/* Others button for manual input */}
-        {!showCityDropdown && !city && (
+        {!showCityDropdown && !city && !isOthersSelected && (
           <Button
             onClick={handleOthersCity}
             className="mt-4 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white border border-pure-white/30 rounded-xl py-3 px-6 transition-all duration-300"
