@@ -165,8 +165,8 @@ All colors MUST be HSL.
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 20%, hsl(var(--electric-blue) / 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, hsl(var(--electric-blue) / 0.05) 0%, transparent 50%);
+    radial-gradient(circle at 20% 20%, hsl(220 100% 60% / 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, hsl(220 100% 80% / 0.05) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -174,7 +174,7 @@ All colors MUST be HSL.
   position: absolute;
   width: 2px;
   height: 2px;
-  background: linear-gradient(45deg, transparent, hsl(var(--electric-blue) / 0.6), transparent);
+  background: linear-gradient(45deg, transparent, hsl(220 100% 60% / 0.6), transparent);
   animation: streak 8s linear infinite;
 }
 

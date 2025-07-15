@@ -67,6 +67,16 @@ const Index = () => {
         return;
       }
 
+      // Validate required fields
+      if (!loanAmount[0] || !employmentType || !monthlyIncome || !ageGroup || !city.trim()) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required fields.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('loan_applications')
         .insert({
@@ -75,7 +85,7 @@ const Index = () => {
           employment_type: employmentType,
           monthly_income: monthlyIncome,
           age_group: ageGroup,
-          city: city
+          city: city.trim()
         });
 
       if (error) {
@@ -166,11 +176,11 @@ const Index = () => {
   const cards = [
     // Card 1: Loan Amount
     <div key="loan-amount" className="flex flex-col items-center justify-center space-y-8 text-center">
-      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-4">
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
         How much loan do you need?
       </h2>
       <div className="w-full max-w-lg space-y-8">
-        <div className="text-6xl md:text-7xl font-black text-electric-blue glow-text">
+        <div className="text-6xl md:text-7xl font-black text-primary glow-text">
           {formatAmount(loanAmount[0])}
         </div>
         <div className="px-6">
@@ -187,11 +197,11 @@ const Index = () => {
             className="w-full slider-electric"
           />
         </div>
-        <div className="flex justify-between text-sm text-pure-white/60">
+        <div className="flex justify-between text-sm text-muted-foreground">
           <span>₹1K</span>
           <span>₹1 Cr</span>
         </div>
-        <p className="text-pure-white/80 text-sm mt-4">
+        <p className="text-muted-foreground text-sm mt-4">
           Low interest rates. No credit score required.
         </p>
       </div>
@@ -199,7 +209,7 @@ const Index = () => {
 
     // Card 2: Employment Type
     <div key="employment" className="flex flex-col items-center justify-center space-y-8 text-center">
-      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-8">
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
         What's your employment type?
       </h2>
       <div className="grid gap-6 w-full max-w-md">
@@ -212,8 +222,8 @@ const Index = () => {
             }}
             className={`py-6 text-xl font-semibold rounded-2xl transition-all duration-300 ${
               employmentType === type
-                ? "bg-electric-blue text-pure-white shadow-2xl shadow-electric-blue/40 scale-105"
-                : "bg-pure-white text-gray-900 hover:bg-gray-100 hover:scale-105"
+                ? "bg-primary text-primary-foreground shadow-2xl shadow-primary/40 scale-105"
+                : "bg-card text-card-foreground hover:bg-muted hover:scale-105"
             }`}
           >
             {type}
@@ -224,7 +234,7 @@ const Index = () => {
 
     // Card 3: Monthly Income
     <div key="income" className="flex flex-col items-center justify-center space-y-8 text-center">
-      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-8">
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
         Your monthly income
       </h2>
       <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
@@ -237,8 +247,8 @@ const Index = () => {
             }}
             className={`py-4 text-lg font-medium rounded-xl transition-all duration-300 ${
               monthlyIncome === income
-                ? "bg-electric-blue text-pure-white shadow-lg shadow-electric-blue/30 scale-105"
-                : "bg-pure-white text-gray-900 hover:bg-gray-100 hover:scale-105"
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-105"
+                : "bg-card text-card-foreground hover:bg-muted hover:scale-105"
             }`}
           >
             {income}
@@ -249,7 +259,7 @@ const Index = () => {
 
     // Card 4: Age Group
     <div key="age" className="flex flex-col items-center justify-center space-y-8 text-center">
-      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-8">
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
         What's your age group?
       </h2>
       <div className="grid grid-cols-2 gap-4 w-full max-w-lg">
@@ -262,8 +272,8 @@ const Index = () => {
             }}
             className={`py-4 text-lg font-medium rounded-xl transition-all duration-300 pulse-hover ${
               ageGroup === age
-                ? "bg-electric-blue text-pure-white shadow-lg shadow-electric-blue/30 scale-105"
-                : "bg-pure-white text-gray-900 hover:bg-gray-100"
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-105"
+                : "bg-card text-card-foreground hover:bg-muted"
             }`}
           >
             {age === "18-21" ? "18-21 (Student Loans)" : age}
@@ -274,29 +284,29 @@ const Index = () => {
 
     // Card 5: City Search
     <div key="city" className="flex flex-col items-center justify-center space-y-8 text-center">
-      <h2 className="text-4xl md:text-5xl font-bold text-pure-white mb-8">
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8">
         Enter your city
       </h2>
       <div className="relative w-full max-w-md">
-        <div className="relative bg-pure-white rounded-2xl p-6 shadow-2xl">
+        <div className="relative bg-card rounded-2xl p-6 shadow-2xl">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <Input
               value={city}
               onChange={(e) => handleCitySearch(e.target.value)}
               placeholder="Type your city name..."
-              className="pl-10 py-3 text-lg border-0 bg-transparent focus:ring-0 focus:outline-none"
+              className="pl-10 py-3 text-lg border-0 bg-transparent focus:ring-0 focus:outline-none text-card-foreground"
               onFocus={() => setShowCityDropdown(true)}
             />
           </div>
           
           {showCityDropdown && filteredCities.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-pure-white rounded-xl shadow-2xl max-h-48 overflow-y-auto z-50">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl shadow-2xl max-h-48 overflow-y-auto z-50 border border-border">
               {filteredCities.slice(0, 6).map((cityName) => (
                 <button
                   key={cityName}
                   onClick={() => cityName === "Others" ? handleOthersCity() : handleCitySelect(cityName)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors duration-200 text-gray-900"
+                  className="w-full text-left px-4 py-3 hover:bg-muted transition-colors duration-200 text-card-foreground"
                 >
                   {cityName}
                 </button>
@@ -307,19 +317,19 @@ const Index = () => {
         
         {/* Others manual input section */}
         {isOthersSelected && (
-          <div className="mt-4 p-4 bg-pure-white/10 rounded-xl">
+          <div className="mt-4 p-4 bg-muted/20 rounded-xl">
             <Input
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="Enter your city name..."
-              className="mb-3 bg-pure-white text-black"
+              className="mb-3 bg-card text-card-foreground"
               onKeyPress={(e) => e.key === 'Enter' && handleManualCitySubmit()}
             />
             <div className="flex gap-2">
               <Button
                 onClick={handleManualCitySubmit}
                 disabled={!city.trim()}
-                className="flex-1 bg-electric-blue hover:bg-electric-blue/90 text-pure-white"
+                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 Continue
               </Button>
@@ -329,7 +339,7 @@ const Index = () => {
                   setCity("");
                 }}
                 variant="outline"
-                className="bg-pure-white/20 text-pure-white border-pure-white/30"
+                className="bg-muted/20 text-foreground border-border"
               >
                 Back
               </Button>
@@ -341,7 +351,7 @@ const Index = () => {
         {!showCityDropdown && !city && !isOthersSelected && (
           <Button
             onClick={handleOthersCity}
-            className="mt-4 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white border border-pure-white/30 rounded-xl py-3 px-6 transition-all duration-300"
+            className="mt-4 bg-muted/10 hover:bg-muted/20 text-foreground border border-border rounded-xl py-3 px-6 transition-all duration-300"
           >
             Others (Enter manually)
           </Button>
@@ -360,8 +370,8 @@ const Index = () => {
               key={index}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                 index === currentCard
-                  ? "bg-electric-blue shadow-lg shadow-electric-blue/50"
-                  : "bg-pure-white/30"
+                  ? "bg-primary shadow-lg shadow-primary/50"
+                  : "bg-muted-foreground/30"
               }`}
             />
           ))}
@@ -372,7 +382,7 @@ const Index = () => {
       {currentCard > 0 && (
         <button
           onClick={() => handleSwipe('right')}
-          className="absolute left-6 top-1/2 transform -translate-y-1/2 z-20 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm"
+          className="absolute left-6 top-1/2 transform -translate-y-1/2 z-20 bg-muted/10 hover:bg-muted/20 text-foreground p-3 rounded-full transition-all duration-300 backdrop-blur-sm"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
@@ -381,7 +391,7 @@ const Index = () => {
       {currentCard < totalCards - 1 && (
         <button
           onClick={() => handleSwipe('left')}
-          className="absolute right-6 top-1/2 transform -translate-y-1/2 z-20 bg-pure-white/10 hover:bg-pure-white/20 text-pure-white p-3 rounded-full transition-all duration-300 backdrop-blur-sm"
+          className="absolute right-6 top-1/2 transform -translate-y-1/2 z-20 bg-muted/10 hover:bg-muted/20 text-foreground p-3 rounded-full transition-all duration-300 backdrop-blur-sm"
         >
           <ChevronRight className="w-6 h-6" />
         </button>
@@ -403,7 +413,7 @@ const Index = () => {
       </div>
 
       {/* Swipe Instructions */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-pure-white/60 text-sm">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-muted-foreground text-sm">
         <p>← Swipe or use arrow keys to navigate →</p>
       </div>
     </div>
