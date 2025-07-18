@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
 import Index from "./pages/Index";
 import KYC from "./pages/KYC";
 import EligibleApps from "./pages/EligibleApps";
@@ -76,6 +77,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/auth/callback" element={<AuthCallback />} />
             {!session ? (
               <Route path="*" element={<Login />} />
             ) : (

@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import KYCForm from "@/components/KYCForm";
 
 const CITIES = [
   "Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Kolkata", "Pune", "Ahmedabad",
@@ -24,10 +25,14 @@ const Index = () => {
   const [filteredCities, setFilteredCities] = useState(CITIES);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [isOthersSelected, setIsOthersSelected] = useState(false);
+  const [showKYCForm, setShowKYCForm] = useState(false);
+  const [aadhaar, setAadhaar] = useState("");
+  const [pan, setPan] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const sliderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const totalCards = 5;
+  const totalCards = 6;
 
   const formatAmount = (amount: number) => {
     if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(1)} Cr`;
@@ -53,14 +58,15 @@ const Index = () => {
       if (currentCard < totalCards - 1) {
         setCurrentCard(currentCard + 1);
       } else {
-        // Submit loan application data
-        submitLoanApplication();
+        // Show KYC form after city selection
+        setShowKYCForm(true);
       }
     }, 1500);
   };
 
-  const submitLoanApplication = async () => {
+  const submitLoanApplication = async (aadhaarNumber: string, panNumber: string) => {
     try {
+      setSubmitting(true);
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) {
         navigate('/login');
@@ -85,7 +91,9 @@ const Index = () => {
           employment_type: employmentType,
           monthly_income: monthlyIncome,
           age_group: ageGroup,
-          city: city.trim()
+          city: city.trim(),
+          aadhaar_number: aadhaarNumber,
+          pan_number: panNumber
         });
 
       if (error) {
@@ -103,7 +111,7 @@ const Index = () => {
         .from('kyc_status')
         .upsert({
           user_id: user.id,
-          status: 'pending'
+          status: 'completed'
         });
 
       toast({
@@ -119,7 +127,19 @@ const Index = () => {
         description: "Something went wrong. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleKYCSubmit = (aadhaarNumber: string, panNumber: string) => {
+    setAadhaar(aadhaarNumber);
+    setPan(panNumber);
+    submitLoanApplication(aadhaarNumber, panNumber);
+  };
+
+  const handleKYCBack = () => {
+    setShowKYCForm(false);
   };
 
   const handleCitySearch = (value: string) => {
@@ -416,6 +436,17 @@ const Index = () => {
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-muted-foreground text-sm">
         <p>← Swipe or use arrow keys to navigate →</p>
       </div>
+
+      {/* KYC Form Overlay */}
+      {showKYCForm && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <KYCForm
+            onSubmit={handleKYCSubmit}
+            onBack={handleKYCBack}
+            loading={submitting}
+          />
+        </div>
+      )}
     </div>
   );
 };
