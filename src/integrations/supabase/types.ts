@@ -40,6 +40,7 @@ export type Database = {
       }
       loan_applications: {
         Row: {
+          aadhaar_number: string | null
           age_group: string
           city: string
           created_at: string | null
@@ -47,11 +48,13 @@ export type Database = {
           id: string
           loan_amount: number
           monthly_income: string
+          pan_number: string | null
           status: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          aadhaar_number?: string | null
           age_group: string
           city: string
           created_at?: string | null
@@ -59,11 +62,13 @@ export type Database = {
           id?: string
           loan_amount: number
           monthly_income: string
+          pan_number?: string | null
           status?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          aadhaar_number?: string | null
           age_group?: string
           city?: string
           created_at?: string | null
@@ -71,6 +76,7 @@ export type Database = {
           id?: string
           loan_amount?: number
           monthly_income?: string
+          pan_number?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string
